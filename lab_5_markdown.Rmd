@@ -1,0 +1,32 @@
+---
+title: "esm 206 lab 5"
+author: "Ruiheng Jin"
+date: "10/28/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
