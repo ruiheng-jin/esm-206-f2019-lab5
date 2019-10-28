@@ -1,13 +1,79 @@
 ---
-title: "esm 206 lab 5"
+title: "ESM 206 Lab 5"
 author: "Ruiheng Jin"
 date: "10/28/2019"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
 ```
+
+## Objectives:
+
+- Getting counts for different groups
+- Use {lubridate} package -- elucidate dates
+- Find confidence intervals & do t-tests with t.test()
+- Heatmap with geom_tile()
+
+```{r Attach packages, include=FALSE}
+# attach packages
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+```{r Import data and initial cleaning}
+# import lobster data
+
+lobster_abun <- read_csv(here::here("data", "lobster_abundance.csv"),
+                         na = "-99999") %>% 
+  clean_names()
+
+# date column is stored as characters
+##### lobster_count - not tidy, we want each lobster have its own row #####
+# NA are stored as -99999
+```
+
+Use the dplyr::uncount() function to expand a frequency variable
+
+```{r Use the dplyr::uncount() function to expand a frequency variable}
+lobster_tidy <- lobster_abun %>%
+  tidyr::uncount(lobster_count)
+```
+Now each lobster has its own row, it's in tidy format.
+
+
+Exploratory data visualization
+```{r Exploratory data viz}
+ggplot(lobster_tidy, aes(x = site, y = size_mm)) +
+  geom_jitter(aes(color = site), 
+              width = .2,
+              alpha = .3)
+
+ggplot(lobster_tidy, aes(x = site, y = size_mm)) +
+  geom_violin(aes(fill = site, color = site))
+
+# histogram
+ggplot(lobster_tidy, aes(x = size_mm)) +
+  geom_histogram(aes(fill = site), show.legend = FALSE) +
+  facet_wrap(~site, scales = "free")
+##### Have diff scales for each facet #####
+
+
+# QQ plot 
+ggplot(lobster_tidy, aes(sample = size_mm)) +
+  geom_qq(size = .5) + 
+  facet_wrap(~site, scales = "free")
+```
+
+
+
+
 
 
 
