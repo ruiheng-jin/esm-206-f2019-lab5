@@ -71,11 +71,113 @@ ggplot(lobster_tidy, aes(sample = size_mm)) +
   facet_wrap(~site, scales = "free")
 ```
 
+Use "lubridate" function to parse dates and times, add new column with mutate() that contains date as actual dates
+```{r lubridate function}
+##### need to know the function of the date, MDY? YMD? choose function accordingly #####
+lobster_date <- lobster_tidy %>% 
+  mutate(date_new = lubridate::mdy(date))
+# check the class of new col, it's "date"
+
+# what if we want to group by month?
+
+```
+
+What if we want to group by month?
+Parse "date" column to get different pieces separated
+```{r Parse "date" column to get different pieces separated}
+##### lubridate::month, label = TRUE #####
+lobster_parse_date <- lobster_date %>% 
+  mutate(
+    obs_months = lubridate::month(date_new, label = TRUE),
+    obs_year = lubridate::year(date_new)
+  )
+```
+
+Count lobsters by diff groupings
+COUNT NUMBER OF LOBSTERS BY YEAR AND MONTH
+
+```{r Counting things}
+lobster_ym <- lobster_parse_date %>% 
+  count(obs_year, obs_months)
+
+lobster_ym
+# it counted the number of observations by these groupings
+
+# try a diff grouping
+lobster_ysite <- lobster_parse_date %>% 
+  count(obs_year, site)
+lobster_ysite
+
+lobster_site <- lobster_parse_date %>% 
+  count(site)
+lobster_site
 
 
+# If we want other summary statistics in addition to count
+##### function n() #####
+lobster_summary <- lobster_parse_date %>% 
+  group_by(site) %>% 
+  summarize(
+    mean_size = mean(size_mm, na.rm = TRUE),
+    sd_size = sd(size_mm, na.rm = TRUE),
+    sample_n = n()
+  )
+```
+
+Confidence intervals and t-tests.
+
+Use the 't.test()' function to find CIs and perform t tests
+
+```{r t test and confidence intervals}
+
+ivee_lobsters <- lobster_tidy %>% 
+  filter(site == "IVEE") %>% 
+  pull(size_mm)
+
+t.test(ivee_lobsters)
+# default is one sample t test, see if it's significantly different from 0
+
+```
+
+Two-sample t-test
+Is there a sig diff in lobster length between Naples and Mohawk?
+```{r two sample t-test}
+
+napl_sample <- lobster_tidy %>% 
+  filter(site == "NAPL") %>% 
+  pull(size_mm)
+
+mohk_sample <- lobster_tidy %>% 
+  filter(site == "MOHK") %>% 
+  pull(size_mm)
+
+mohk_napl_ttest <- t.test(napl_sample, mohk_sample)
+
+mohk_napl_ttest
 
 
+```
+Use ?t.test() to check values stored in the test, to reference them
 
+Here's how to reference test statistical results
+Mean lobster size differened sig b/n Mohawk and Naples reefs:
+(t('r mohk_napl_ttest$parameter') = 'r mohk_napl_ttest$statistic')
+
+maybe an easier way...
+```{r another way to do 2 sample ttest}
+lobster_2sample <- lobster_tidy %>% 
+  filter(site %in% c("NAPL", "MOHK"))
+
+ttest_2 <- t.test(size_mm ~ site, data = lobster_2sample)
+ttest_2
+```
+
+Make a geom_tile heatmap
+```{r}
+
+ggplot(lobster_ysite, aes(x = obs_year, y = site)) +
+  geom_tile(aes(fill = n))
+```
 
 
 
